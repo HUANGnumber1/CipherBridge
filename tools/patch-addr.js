@@ -1,6 +1,7 @@
 // 用 deployments.json 回填前端 contracts.ts（依据 resume_zhixing.sh 第4步）
 const fs = require('fs');
-const ROOT = '/root/Bisai';
+const path = require('path');
+const ROOT = path.resolve(__dirname, '..');
 const dp = JSON.parse(fs.readFileSync(ROOT + '/FHE-Protocol/deployments.json', 'utf8'));
 const map = {
   AccessControl: dp.accessControl,

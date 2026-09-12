@@ -5,7 +5,7 @@
 # ============================================================================
 exec > /tmp/start_services.log 2>&1
 set -uo pipefail
-ROOT=/root/Bisai
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 RPC=http://127.0.0.1:8545
 . "$HOME/.cargo/env" 2>/dev/null || true
 export PATH="$HOME/.cargo/bin:$PATH"
@@ -48,7 +48,7 @@ say "3. 部署合约"
 cat "$ROOT/FHE-Protocol/deployments.json"
 
 say "4. 回填 FHE-Frontend/src/config/contracts.ts"
-node /root/Bisai/tools/patch-addr.js || die "回填地址失败"
+node "$ROOT/tools/patch-addr.js" || die "回填地址失败"
 
 say "5. 启动 FHE-API (:3000)"
 tmux new -d -s api "cd '$ROOT/FHE-API' && cargo run --release > /tmp/fhe_api.log 2>&1"

@@ -2,6 +2,8 @@
 # ============================================================================
 # env_setup.sh — CipherBridge 环境初始化（本机 Ubuntu 22.04, root）
 # 依据：docs/ 与 remote-setup/ZHIXINGYUN_GUIDE.md 第3~5步
+# 用法：bash env_setup.sh             # 默认全量初始化
+#       bash env_setup.sh --risczero  # 额外安装 RISC Zero（跑 ZK demo 才需要）
 # 日志：/tmp/env_setup.log
 # 幂等：可重复执行
 # ============================================================================
@@ -11,6 +13,15 @@ export DEBIAN_FRONTEND=noninteractive
 ROOT=/root/Bisai
 stamp(){ echo; echo "################## $* ##################"; date '+%F %T'; }
 rc(){ echo "  [exit=$?] $*"; }
+
+# ---- 参数解析：--risczero 额外安装 RISC Zero（默认不装，保持与旧行为兼容）----
+DO_RISC0=${DO_RISC0:-0}
+for a in "$@"; do
+  case "$a" in
+    --risczero) DO_RISC0=1 ;;
+    *) echo "忽略未知参数: $a (可用: --risczero)" ;;
+  esac
+done
 
 stamp "STAGE 1: apt update + 系统基础依赖"
 apt-get update
@@ -80,6 +91,23 @@ npm config set registry https://registry.npmmirror.com
 echo "Protocol node_modules: $(ls -d "$ROOT/FHE-Protocol/node_modules" 2>/dev/null || echo MISSING)"
 echo "Frontend node_modules: $(ls -d "$ROOT/FHE-Frontend/node_modules" 2>/dev/null || echo MISSING)"
 
-stamp "STAGE 7: 环境初始化完成"
-echo "node=$(node -v) npm=$(npm -v) cargo=$(cargo -V 2>&1)"
+stamp "STAGE 7: RISC Zero 工具链（可选，需 --risczero）"
+if [ "$DO_RISC0" = "1" ]; then
+  if command -v rzup >/dev/null 2>&1; then
+    echo "rzup 已存在，跳过安装: $(command -v rzup)"
+  else
+    curl -L https://risczero.com/install | bash ; rc "risczero 安装脚本"
+    export PATH="$HOME/.risc0/bin:$PATH"
+  fi
+  if command -v rzup >/dev/null 2>&1; then
+    rzup install 2>/dev/null ; rc "rzup install（正式证明需核对版本与 risc0-zkvm 一致，日常用 dev-mode）"
+  else
+    echo "  [WARN] rzup 未找到——安装脚本可能因网络失败；可稍后手动: rzup install"
+  fi
+else
+  echo "跳过（跑 ZK demo 需要时用: bash $0 --risczero）"
+fi
+
+stamp "STAGE 8: 环境初始化完成"
+echo "node=$(node -v) npm=$(npm -v) cargo=$(cargo -V 2>&1) rzup=$(command -v rzup || echo 未安装)"
 touch /tmp/env_setup.done

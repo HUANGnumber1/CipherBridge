@@ -6,7 +6,7 @@
 #   缩短总耗时。阶段划分：
 #     STAGE 1  apt 基础依赖 ................ 串行（apt 独占锁，无法并行）
 #     STAGE 2  Node ‖ Rust ‖ 代码补丁 ...... 3 任务并行   <-- 主要提速点
-#     STAGE 3  cargo crates 镜像 ........... 串行（须等 Rust 完成）
+#     STAGE 3  cargo crates 镜像 + rust-src ... 串行（须等 Rust 完成）
 #     STAGE 4  npm(Protocol) ‖ npm(Frontend) ‖ RISC Zero ... 2~3 任务并行
 #     STAGE 5  汇总
 #     STAGE 6  完成（--build 时自动接续后台编译）
@@ -127,9 +127,24 @@ task_rust(){  # Rust toolchain（rsproxy 镜像）
   return $r
 }
 
+task_rust_src(){  # rust-src 组件（两个 ZK 项目的 rust-toolchain.toml 都声明了它）
+  if ! command -v rustup >/dev/null 2>&1; then
+    echo "rustup 不存在，跳过 rust-src"
+    return 0
+  fi
+  if rustup component list --toolchain stable 2>/dev/null | grep -q '^rust-src (installed)'; then
+    echo "rust-src 已安装，跳过"
+    return 0
+  fi
+  echo "安装 rust-src 组件（ZK 项目首次 cargo run 需要）..."
+  rustup component add rust-src --toolchain stable
+}
+
 task_patch(){  # 项目代码适配（幂等补丁）
   local FHE_API="$ROOT/FHE-API"
   local ZK_GUEST="$ROOT/ZK-Compuation-Proof/hello-world-7/methods/guest/Cargo.toml"
+  local ZK_HOST="$ROOT/ZK-Compuation-Proof/hello-world-7/host/Cargo.toml"
+  local ZK2_GUEST="$ROOT/zkFHE-Decryption-Proof/decryption-proof/methods/guest/Cargo.toml"
   local n=0
   if [ -f "$FHE_API/.cargo/config.toml" ]; then
     sed -i 's/^rustc-wrapper.*/#&/' "$FHE_API/.cargo/config.toml" && n=$((n+1))
@@ -141,6 +156,42 @@ task_patch(){  # 项目代码适配（幂等补丁）
   fi
   if [ -f "$ZK_GUEST" ]; then
     sed -i 's#/Users/farhadnouri/Desktop/IEEE_Globecom/tfhe-rs-main/tfhe#../../../tfhe-rs-main/tfhe#' "$ZK_GUEST" && n=$((n+1))
+  fi
+  if [ -f "$ZK_HOST" ]; then
+    # 原作者 macOS 配置是 aarch64-unix；在 x86_64 机器上 concrete-csprng 会因
+    # 特性 generator_aarch64_aes 直接编译失败（exit 101），必须改为 x86_64-unix
+    sed -i 's/"aarch64-unix"/"x86_64-unix"/' "$ZK_HOST" && n=$((n+1))
+  fi
+  if [ -f "$ZK2_GUEST" ]; then
+    # decryption-proof 的 guest 要反序列化约 90MB 大密钥；risc0 默认 bump 分配器不回收内存，
+    # 会在 zkVM 内报 “Out of memory! ... Enable the heap-embedded-alloc feature”，故这里开启
+    sed -i "s/features = \\['std'\\]/features = ['std', 'heap-embedded-alloc']/" "$ZK2_GUEST" && n=$((n+1))
+    # 但 risc0 依赖的 embedded-alloc 0.6.0 用的是旧 API（Layout::dangling），本机 rustc 已改名
+    # dangling_ptr ⇒ 直接编译失败。用同版本 + 2 行补丁的 vendor 副本经 [patch.crates-io] 替换。
+    local VENDOR="$ROOT/zkFHE-Decryption-Proof/vendor/embedded-alloc-0.6.0"
+    if [ ! -d "$VENDOR" ]; then
+      local esrc
+      esrc=$(ls -d "$HOME/.cargo/registry/src/"*/embedded-alloc-0.6.0 2>/dev/null | head -1)
+      if [ -z "$esrc" ]; then
+        # 缓存里还没有：先 fetch 一次（此时尚未写入 patch 段，fetch 可用）
+        echo "  触发 guest 依赖下载（embedded-alloc 0.6.0）..."
+        ( cd "$(dirname "$ZK2_GUEST")" && cargo fetch --target riscv32im-risc0-zkvm-elf >/dev/null 2>&1 )
+        esrc=$(ls -d "$HOME/.cargo/registry/src/"*/embedded-alloc-0.6.0 2>/dev/null | head -1)
+      fi
+      if [ -n "$esrc" ]; then
+        mkdir -p "$ROOT/zkFHE-Decryption-Proof/vendor"
+        cp -r "$esrc" "$VENDOR" && chmod -R u+w "$VENDOR"
+        sed -i 's/\.dangling()/.dangling_ptr()/g' "$VENDOR/src/llff.rs" "$VENDOR/src/tlsf.rs"
+        echo "  已生成 vendor 补丁: $VENDOR"
+        n=$((n+1))
+      else
+        echo "  [WARN] 未取得 embedded-alloc-0.6.0 源码，无法生成 vendor 补丁"
+      fi
+    fi
+    if [ -d "$VENDOR" ] && ! grep -q '^\[patch.crates-io\]' "$ZK2_GUEST" 2>/dev/null; then
+      printf '\n# embedded-alloc 0.6.0 与本机 rustc 不兼容（Layout::dangling 已改名），用 vendor 副本替换\n[patch.crates-io]\nembedded-alloc = { path = "../../../vendor/embedded-alloc-0.6.0" }\n' >> "$ZK2_GUEST"
+      n=$((n+1))
+    fi
   fi
   echo "已处理 $n 处补丁（幂等，重复执行无副作用）"
   echo "--- FHE-API/Cargo.toml 的 tfhe 行 ---"
@@ -196,6 +247,15 @@ task_risczero(){  # RISC Zero 工具链（rzup）
     echo "[WARN] rzup 未找到——网络问题？可稍后手动执行 rzup install"
     return 1
   fi
+  # 两个 ZK demo（ZK-Compuation-Proof / zkFHE-Decryption-Proof）用的是 risc0-zkvm 1.2.x，
+  # 而 risc0 要求 r0vm 服务端与 risc0-zkvm 同 major.minor，否则 prove() 直接报“not compatible”
+  if ls -d "$HOME/.risc0/extensions/"*1.2*-cargo-risczero-* >/dev/null 2>&1; then
+    echo "r0vm 1.2.x 已存在，跳过"
+  else
+    echo "安装 r0vm 1.2.6（ZK demo 用 risc0-zkvm 1.2.x，需要配套的 1.2.x 服务端）..."
+    rzup install r0vm 1.2.6 \
+      || echo "[WARN] r0vm 1.2.6 安装失败；跑 ZK demo 前需手动: rzup install r0vm 1.2.6"
+  fi
 }
 
 # ============================================================================
@@ -235,8 +295,10 @@ echo "  node=$(command -v node || echo MISSING)  cargo=$(command -v cargo || ech
 # ============================================================================
 # STAGE 3：cargo crates 镜像（串行，必须在 Rust 安装完成后）
 # ============================================================================
-stamp "STAGE 3: cargo crates 镜像 (rsproxy)"
+stamp "STAGE 3: cargo crates 镜像 (rsproxy) + rust-src 组件"
 if task_cargo_mirror; then echo "  [OK ] cargo 镜像"; else note "cargo 镜像配置失败"; fi
+# 3b. rust-src 组件：ZK 项目 rust-toolchain.toml 需要，缺失会在首次 cargo run 时临时下载
+if task_rust_src; then echo "  [OK ] rust-src"; else note "rust-src 安装失败（ZK 首次运行时会自动重试下载）"; fi
 
 # ============================================================================
 # STAGE 4：npm(Protocol) ‖ npm(Frontend) ‖ RISC Zero —— 并行

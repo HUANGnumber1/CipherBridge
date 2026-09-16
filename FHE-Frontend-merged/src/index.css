@@ -1,0 +1,215 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================================
+   融鉴 FinLens 品牌色板 — 紫罗兰 + 青色棱镜
+   取自品牌 Logo（design_doc.md §16）
+   ============================================================ */
+:root {
+  --primary-color: #5B3CC4;        /* 品牌主紫 */
+  --primary-light: #EDE8FC;        /* 浅紫容器色 */
+  --primary-dark: #1E1650;         /* 深紫/藏青 */
+  --accent-color: #45D6EE;         /* 棱镜青 */
+  --bg-color: #F7F6FC;             /* 浅紫白背景 */
+  --card-bg: #FFFFFF;              /* 卡片白 */
+  --text-primary: #1A1740;         /* 主文字（藏青） */
+  --text-secondary: #514D6B;       /* 次文字 */
+  --border-color: #E4E0F5;         /* 边框浅紫 */
+  --m3-primary-rgb: 91, 60, 196;   /* #5B3CC4 用于透明色光晕 */
+  --primary-hover: #6E4FE0;        /* 主按钮 hover */
+  --primary-soft: #C9BCF0;         /* 输入框 hover 边框 */
+  --brand-gradient: linear-gradient(135deg, #7A5AF8 0%, #4B2FB8 100%);
+  --brand-gradient-accent: linear-gradient(135deg, #5568E8 0%, #45D6EE 100%);
+}
+
+body {
+  background-color: var(--bg-color);
+  color: var(--text-primary);
+}
+
+.ant-layout {
+  min-height: 100vh;
+}
+
+/* 侧边栏样式 */
+.ant-layout-sider {
+  background: #ffffff;
+  border-right: 1px solid var(--border-color);
+  box-shadow: 2px 0 12px rgba(var(--m3-primary-rgb), 0.08);
+}
+
+.app-logo {
+  height: 44px;
+  width: auto;
+  display: block;
+  margin: 20px auto;
+}
+
+.ant-layout-header {
+  padding: 0 32px;
+  background: transparent;
+  border-bottom: none;
+  box-shadow: none;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  position: relative;
+  z-index: 20;
+}
+
+@media (max-width: 640px) {
+  .ant-layout-header {
+    padding: 0 16px;
+  }
+}
+
+.page-container {
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 32px;
+}
+
+.ant-card {
+  background: var(--card-bg);
+  border-radius: 20px;
+  box-shadow: 0 10px 30px -12px rgba(var(--m3-primary-rgb), 0.25);
+  border: 1px solid var(--border-color);
+  transition: all 0.3s ease;
+  margin-bottom: 24px;
+}
+
+.ant-card:hover {
+  box-shadow: 0 20px 40px -12px rgba(var(--m3-primary-rgb), 0.35);
+  transform: translateY(-4px);
+}
+
+.section-title {
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 24px;
+  letter-spacing: -0.3px;
+}
+
+.ant-menu {
+  border-right: none;
+  background: transparent;
+}
+
+/* 通知提示定位到视口底部，避免遮挡顶部 Header 与页面标题 */
+.ant-message,
+.ant-message.ant-message-top {
+  top: auto !important;
+  bottom: 24px !important;
+}
+
+/* Custom Table Styles */
+.custom-table .ant-table {
+  background: var(--card-bg);
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.custom-table .ant-table-thead > tr > th {
+  background: var(--primary-light);   /* 品牌浅紫 */
+  color: var(--text-primary);
+  border-bottom: 2px solid var(--border-color);
+  font-weight: 600;
+}
+
+.custom-table .ant-table-tbody > tr > td {
+  border-bottom: 1px solid var(--border-color);
+}
+
+.custom-table .ant-table-tbody > tr:hover > td {
+  background: rgba(var(--m3-primary-rgb), 0.08) !important;
+}
+
+/* Custom Modal Styles */
+.custom-modal .ant-modal-content {
+  border-radius: 20px;
+  box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.18);
+}
+
+.custom-modal .ant-modal-header {
+  border-radius: 20px 20px 0 0;
+  border-bottom: 1px solid var(--border-color);
+  padding: 18px 28px;
+}
+
+.custom-modal .ant-modal-body {
+  @apply p-7;
+}
+
+/* Custom Button Hover Effects */
+.ant-btn-primary {
+  background: var(--brand-gradient);
+  border: none;
+  box-shadow: 0 6px 16px -4px rgba(var(--m3-primary-rgb), 0.4);
+  transition: all 0.3s ease;
+}
+
+.ant-btn-primary:hover {
+  background: var(--primary-hover) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 22px -4px rgba(var(--m3-primary-rgb), 0.5) !important;
+}
+
+/* 表单输入框样式 */
+.ant-input, .ant-select-selector {
+  border-radius: 12px !important;
+  border: 1px solid var(--border-color) !important;
+  transition: all 0.3s ease;
+}
+
+.ant-input:hover, .ant-select-selector:hover {
+  border-color: var(--primary-soft) !important;
+}
+
+.ant-input:focus, .ant-select-selector:focus {
+  border-color: var(--primary-color) !important;
+  box-shadow: 0 0 0 3px rgba(var(--m3-primary-rgb), 0.18) !important;
+}
+
+/* Badge样式 */
+.ant-badge .ant-badge-count {
+  background: var(--primary-color);
+  box-shadow: 0 4px 10px -2px rgba(var(--m3-primary-rgb), 0.4);
+}
+
+/* Tag样式 */
+.ant-tag {
+  border-radius: 10px;
+  padding: 4px 10px;
+  font-weight: 500;
+}
+
+/* 标题样式 */
+h1, h2, h3, h4, h5 {
+  color: var(--text-primary);
+  font-weight: 700;
+}
+
+/* 添加动画效果 */
+.ant-card, .ant-btn, .ant-input, .ant-select-selector {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* 图标样式 */
+.anticon {
+  transition: transform 0.3s;
+}
+
+/* 侧边栏菜单选中态 */
+.ant-menu-item-selected {
+  background: rgba(var(--m3-primary-rgb), 0.12) !important;
+  border-radius: 12px;
+  color: var(--primary-dark) !important;
+  font-weight: 600;
+}
+
+.ant-menu-item:hover {
+  border-radius: 12px;
+  color: var(--primary-dark) !important;
+}

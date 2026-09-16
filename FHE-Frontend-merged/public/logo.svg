@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 173 148" width="173" height="148">
+  <defs>
+    <linearGradient id="purpleTop" x1="32" y1="48" x2="111" y2="34" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#3020A6"/>
+      <stop offset="0.52" stop-color="#6550DD"/>
+      <stop offset="1" stop-color="#A18CEB"/>
+    </linearGradient>
+    <linearGradient id="purpleBottom" x1="32" y1="88" x2="110" y2="122" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#3524AA"/>
+      <stop offset="0.55" stop-color="#6852DE"/>
+      <stop offset="1" stop-color="#A08BEA"/>
+    </linearGradient>
+    <linearGradient id="diamond" x1="82" y1="74" x2="116" y2="74" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#6547D9"/>
+      <stop offset="0.5" stop-color="#625EE4"/>
+      <stop offset="1" stop-color="#35D5DE"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Upper ribbon -->
+  <path
+    d="M 34.5,80.5
+       C 34.2,63.0 35.8,51.0 45.8,40.0
+       C 58.8,25.8 79.5,19.4 106.0,19.8
+       L 105.2,48.8
+       C 82.5,54.0 58.0,63.7 42.0,76.8
+       C 38.8,79.4 36.5,81.8 34.5,84.0
+       Z"
+    fill="url(#purpleTop)"/>
+
+  <!-- Lower ribbon -->
+  <path
+    d="M 34.8,79.0
+       C 37.7,88.8 50.8,99.8 65.8,107.0
+       C 78.3,113.0 92.5,117.1 105.3,119.7
+       L 106.1,148.0
+       C 80.2,143.8 58.2,133.7 44.2,121.2
+       C 35.2,113.2 30.5,102.5 30.8,92.8
+       C 31.0,87.0 32.4,82.7 34.8,79.0
+       Z"
+    fill="url(#purpleBottom)"/>
+
+  <!-- Center diamond -->
+  <path d="M 98.8,58.8 L 115.7,74.0 L 98.8,89.6 L 82.1,74.0 Z"
+        fill="url(#diamond)"/>
+</svg>

@@ -18,9 +18,10 @@ tfhe-fft = { path = "../../../tfhe-rs-main/tfhe-fft" }
 #tfhe = { version = "0.8.4", features = [ "boolean", "shortint", "pbs-stats", "integer", "aarch64-unix" ] }
 concrete-ntt ={ version = "0.2.0"}
 
-# 本机 risc0 工具链的 rustc 已把 `Layout::dangling` 改名为 `dangling_ptr`，
-# 而 risc0 的 heap-embedded-alloc 特性依赖 embedded-alloc 0.6.0（用了旧名字 → 编译失败）。
-# 这里用 vendor 里打了 2 行补丁的**同版本**副本替换（版本号不变，满足 risc0 的 ^0.6 约束）。
+# guest 由 risc0 guest 工具链（rzup rust 1.85.0）编译，其 core 里 Layout 的方法名是 `dangling()`；
+# 较新的 rustc（如 host 用的 stable 1.98）已改名为 `dangling_ptr()`。embedded-alloc 0.6.0 用旧名，
+# 这里用 vendor 里的**同版本**副本替换，方便随工具链升级统一改名（版本号不变，满足 risc0 的 ^0.6 约束）。
+# 改名与探测逻辑见 tools/setup_zk_env.sh 的 detect_dangling_api / 5-3。
 [patch.crates-io]
 embedded-alloc = { path = "../../../vendor/embedded-alloc-0.6.0" }
 

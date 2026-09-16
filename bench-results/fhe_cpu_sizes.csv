@@ -1,0 +1,6 @@
+item,bytes,base64_bytes,note
+compressed_ciphertext,2964,3952,CompressedFheUint64
+decompressed_ciphertext,526736,702316,FheUint64
+public_key,16524,22032,CompressedCompactPublicKey
+server_key,27410659,36547548,CompressedServerKey
+client_key,23254,31008,ClientKey

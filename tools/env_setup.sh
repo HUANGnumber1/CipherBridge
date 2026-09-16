@@ -166,8 +166,9 @@ task_patch(){  # 项目代码适配（幂等补丁）
     # decryption-proof 的 guest 要反序列化约 90MB 大密钥；risc0 默认 bump 分配器不回收内存，
     # 会在 zkVM 内报 “Out of memory! ... Enable the heap-embedded-alloc feature”，故这里开启
     sed -i "s/features = \\['std'\\]/features = ['std', 'heap-embedded-alloc']/" "$ZK2_GUEST" && n=$((n+1))
-    # 但 risc0 依赖的 embedded-alloc 0.6.0 用的是旧 API（Layout::dangling），本机 rustc 已改名
-    # dangling_ptr ⇒ 直接编译失败。用同版本 + 2 行补丁的 vendor 副本经 [patch.crates-io] 替换。
+    # heap-embedded-alloc 依赖 embedded-alloc 0.6.0（用的是 Layout::dangling()）；该名字在较新 rustc 上
+    # 已改名 dangling_ptr()。**该用哪个名字取决于编译 guest 的那个 rustc**（guest 由 risc0 guest 工具链
+    # rust 1.85.0 编译 → 仍是 dangling()）。这里只保证 vendor 副本在位，改名统一交给 setup_zk_env.sh 探测。
     local VENDOR="$ROOT/zkFHE-Decryption-Proof/vendor/embedded-alloc-0.6.0"
     if [ ! -d "$VENDOR" ]; then
       local esrc
@@ -181,16 +182,20 @@ task_patch(){  # 项目代码适配（幂等补丁）
       if [ -n "$esrc" ]; then
         mkdir -p "$ROOT/zkFHE-Decryption-Proof/vendor"
         cp -r "$esrc" "$VENDOR" && chmod -R u+w "$VENDOR"
-        sed -i 's/\.dangling()/.dangling_ptr()/g' "$VENDOR/src/llff.rs" "$VENDOR/src/tlsf.rs"
-        echo "  已生成 vendor 补丁: $VENDOR"
+        echo "  已生成 vendor 副本: $VENDOR（API 名字交给 setup_zk_env.sh 按 guest 工具链校正）"
         n=$((n+1))
       else
-        echo "  [WARN] 未取得 embedded-alloc-0.6.0 源码，无法生成 vendor 补丁"
+        echo "  [WARN] 未取得 embedded-alloc-0.6.0 源码，无法生成 vendor 副本"
       fi
     fi
     if [ -d "$VENDOR" ] && ! grep -q '^\[patch.crates-io\]' "$ZK2_GUEST" 2>/dev/null; then
-      printf '\n# embedded-alloc 0.6.0 与本机 rustc 不兼容（Layout::dangling 已改名），用 vendor 副本替换\n[patch.crates-io]\nembedded-alloc = { path = "../../../vendor/embedded-alloc-0.6.0" }\n' >> "$ZK2_GUEST"
+      printf '\n# embedded-alloc 0.6.0 的 Layout::dangling 命名随 rustc 变化；用 vendor 副本 + setup_zk_env.sh 校正\n[patch.crates-io]\nembedded-alloc = { path = "../../../vendor/embedded-alloc-0.6.0" }\n' >> "$ZK2_GUEST"
       n=$((n+1))
+    fi
+    # 校正 vendor 里的 Layout 悬垂指针方法名（探测 risc0 guest 工具链 → dangling() 还是 dangling_ptr()）
+    if [ -x "$ROOT/tools/setup_zk_env.sh" ]; then
+      bash "$ROOT/tools/setup_zk_env.sh" --patch-only >/dev/null 2>&1 && n=$((n+1)) \
+        || echo "  [WARN] setup_zk_env.sh --patch-only 有失败项（见 /tmp/zk_env_setup.patch.log）"
     fi
   fi
   echo "已处理 $n 处补丁（幂等，重复执行无副作用）"
@@ -247,14 +252,27 @@ task_risczero(){  # RISC Zero 工具链（rzup）
     echo "[WARN] rzup 未找到——网络问题？可稍后手动执行 rzup install"
     return 1
   fi
-  # 两个 ZK demo（ZK-Compuation-Proof / zkFHE-Decryption-Proof）用的是 risc0-zkvm 1.2.x，
-  # 而 risc0 要求 r0vm 服务端与 risc0-zkvm 同 major.minor，否则 prove() 直接报“not compatible”
-  if ls -d "$HOME/.risc0/extensions/"*1.2*-cargo-risczero-* >/dev/null 2>&1; then
-    echo "r0vm 1.2.x 已存在，跳过"
+  # 两个 ZK demo（ZK-Compuation-Proof / zkFHE-Decryption-Proof）的 Cargo.lock 都解析到 risc0-zkvm 1.2.6：
+  #   · r0vm 服务端必须与 risc0-zkvm 同 major.minor，否则 prove() 直接报 “not compatible”
+  #   · 还需要同版本的 cargo-risczero（host 靠它编 guest）
+  #   · 以及 rzup 注册的、名为 "risc0" 的 guest Rust 工具链（1.2.6 对应 rust 1.85.0），
+  #     否则 guest 编译会报 “The 'risc0' toolchain could not be found / To install the risc0 toolchain, use rzup”
+  #   完整逻辑（含探测 embedded-alloc 的 Layout 方法名）见 tools/setup_zk_env.sh
+  if ls "$HOME/.risc0/extensions/"v1.2.6-cargo-risczero-*/r0vm >/dev/null 2>&1; then
+    echo "risc0 1.2.6 的 cargo-risczero/r0vm 已存在，跳过"
   else
-    echo "安装 r0vm 1.2.6（ZK demo 用 risc0-zkvm 1.2.x，需要配套的 1.2.x 服务端）..."
+    echo "安装 cargo-risczero / r0vm 1.2.6（两个 ZK demo 用 risc0-zkvm 1.2.6）..."
+    rzup install cargo-risczero 1.2.6 \
+      || echo "[WARN] cargo-risczero 1.2.6 安装失败；跑 ZK demo 前需手动: rzup install cargo-risczero 1.2.6"
     rzup install r0vm 1.2.6 \
       || echo "[WARN] r0vm 1.2.6 安装失败；跑 ZK demo 前需手动: rzup install r0vm 1.2.6"
+  fi
+  if rustup toolchain list 2>/dev/null | grep -q '^risc0'; then
+    echo "risc0 guest 工具链已注册，跳过"
+  else
+    echo "安装 risc0 guest Rust 工具链（rust 1.85.0）..."
+    rzup install rust 1.85.0 \
+      || echo "[WARN] rust 1.85.0 安装失败；跑 ZK demo 前需手动: rzup install rust 1.85.0"
   fi
 }
 

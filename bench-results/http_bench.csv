@@ -1,0 +1,12 @@
+tag,count,mean_ms,p50_ms,p95_ms,p99_ms,max_ms,transport,note
+generate_keys,1,2719.44,2719.44,2719.44,2719.44,2719.44,http
+encrypt_conc1,100,6.57,6.48,7.40,7.94,8.50,http
+resource_encrypt_conc1,0,0.0,0.0,3.5,,,cpu_avg,cpu_max,rss_max_mb
+encrypt_conc8,100,7.94,7.74,10.59,13.58,16.95,http
+resource_encrypt_conc8,0,0.0,0.0,0.0,,,cpu_avg,cpu_max,rss_max_mb
+encrypt_conc16,100,13.39,12.76,21.67,28.19,31.56,http
+resource_encrypt_conc16,0,0.0,0.0,0.0,,,cpu_avg,cpu_max,rss_max_mb
+compute_once_n100,1,69639.49,69639.49,69639.49,69639.49,69639.49,http,body=0.38MB
+compute_chunk50,2,34013.79,33774.45,34253.13,34253.13,34253.13,http
+decrypt,1,343.34,343.34,343.34,343.34,343.34,http
+end_to_end_http,1,71090.36,,,,,

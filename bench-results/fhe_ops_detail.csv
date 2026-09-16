@@ -1,0 +1,11 @@
+op,mean_ms,p50_ms,p95_ms,n,note
+encrypt_compressed_serialize,5.0166,5.0166,200,try_encrypt + bincode
+deserialize_compressed,0.0030,0.0030,200,bincode 反序列化
+decompress,5.6013,5.6013,200,CompressedFheUint64 -> FheUint64
+decrypt_only,0.0887,0.0887,200,FheUint64 -> u64（不含解压）
+decrypt_end_to_end(=deser+decomp+dec),5.3007,5.3007,200,服务 /decrypt 口径
+encrypt_uncompressed(FheUint64),5.2548,5.2548,200,无需解压，可直接参与计算
+compress,17.4222,17.4222,200,FheUint64 -> CompressedFheUint64
+add(FheUint64+FheUint64),688.3576,688.3576,10,同态加法（含进位 PBS）
+add_scalar(FheUint64+u64),624.0863,624.0863,10,密文+明文标量
+server_key_decompress_and_set,200.6045,200.6045,5,每次 /compute /decrypt 重复执行

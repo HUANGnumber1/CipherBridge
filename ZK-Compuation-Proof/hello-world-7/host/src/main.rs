@@ -199,12 +199,26 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     // Proof information by proving the specified ELF binary.
     // This struct contains the receipt along with statistics about execution of the guest
+    let dev_mode = std::env::var("RISC0_DEV_MODE").unwrap_or_default() == "1";
+    let t_prove = std::time::Instant::now();
     let prove_info = prover
         .prove(env, HELLO_GUEST_ELF)
         .unwrap();
+    let prove_ms = t_prove.elapsed().as_secs_f64() * 1000.0;
 
     // extract the receipt.
     let receipt = prove_info.receipt;
+    let receipt_bytes = bincode::serialize(&receipt).map(|v| v.len()).unwrap_or(0);
+    let journal_bytes = receipt.journal.bytes.len();
+    println!(
+        "ZK_BENCH(computation) {{\"dev_mode\":{},\"prove_ms\":{:.1},\"receipt_bytes\":{},\"journal_bytes\":{},\"total_cycles\":{},\"user_cycles\":{}}}",
+        dev_mode,
+        prove_ms,
+        receipt_bytes,
+        journal_bytes,
+        prove_info.stats.total_cycles,
+        prove_info.stats.user_cycles,
+    );
     //println!("receipt: {:?}", receipt);
 
     // TODO: Implement code for retrieving receipt journal here.
@@ -218,9 +232,14 @@ fn main() -> Result<(), Box<dyn Error>> {
     // example of how someone else could verify this receipt.
     println!("Hello, world! I generated a proof of guest execution! {:?} is a public output from journal ", output);
 
+    let t_verify = std::time::Instant::now();
     receipt
         .verify(HELLO_GUEST_ID)
         .unwrap();
+    println!(
+        "ZK_BENCH(computation) {{\"verify_ms\":{:.3},\"verify_ok\":true}}",
+        t_verify.elapsed().as_secs_f64() * 1000.0
+    );
 
     Ok(())
 }

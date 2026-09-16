@@ -1,0 +1,5 @@
+R0VM[7303451913] ZK2: all 7 inputs consumed
+R0VM[7303490220] ZK2: guest decrypted PBS output = 6 (expected 6)
+ZK_BENCH(decryption) {"dev_mode":true,"prove_ms":801779.3,"receipt_bytes":33041,"journal_bytes":16420,"total_cycles":8203010048,"user_cycles":7304025337}
+Hello, world! I generated a proof of guest execution! LweCiphertext { data: [7861540024435605504, 17743456569489620992, 15548457669906923520, 13172135812696899584, 11045745849119277056, 12865309149407215616, 8959941221703221248, 14887790544301326336, 11259314385597759488, 351828562874990592, 9149877
+ZK_BENCH(decryption) {"verify_ms":3.751,"verify_ok":true}

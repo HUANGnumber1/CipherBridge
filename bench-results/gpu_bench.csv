@@ -1,0 +1,9 @@
+tag,ms,note2,note
+gpu_keygen_generate_keys,2363.45,,GPU 默认参数集
+gpu_keygen_compressed_server_key,1655.46,,
+gpu_server_key_decompress_to_gpu,620.53,,含 H2D 传输
+gpu_encrypt_single_avg,5.245,,p95=6.087 ct=2964B
+gpu_decrypt_single_avg,5.824,,p95=6.309 correct=true
+gpu_fheuint64_add,72.90,,result=47
+gpu_sum_n10,,655.1,per_add=72.79ms result=55 expect=55
+gpu_sum_n100,,7174.5,per_add=72.47ms result=5050 expect=5050

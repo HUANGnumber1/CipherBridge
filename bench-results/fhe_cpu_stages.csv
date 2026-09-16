@@ -1,0 +1,16 @@
+stage,wall_ms,cpu_ms,cpu_pct,peak_rss_mb,note
+keygen_generate_keys,1392.3,4200.0,301.6,123.0,generate_keys(含参数编译)
+keygen_compressed_public_key,2.4,0.0,0.0,123.3,CompressedCompactPublicKey::new
+keygen_compressed_server_key,1060.1,3760.0,354.7,149.8,CompressedServerKey::new
+size_public_key,16524,16524,,,-,bytes(base64前)
+size_server_key,27410659,27410659,,,-,bytes(base64前)
+size_client_key,23254,23254,,,-,bytes(base64前)
+server_key_decompress_and_set,197.7,1150.0,581.7,319.2,服务端每次 /compute /decrypt 都会重复执行
+encrypt_single_total,1054.6,1060.0,100.5,319.2,200 次单条加密+序列化 合计
+encrypt_single_avg,5.272,5.272,100.516,319.215,mean
+encrypt_single_p50,5.234,5.234,100.516,319.215,p50
+encrypt_single_p95,5.787,5.787,100.516,319.215,p95
+decrypt_batch_total,1018.3,1010.0,99.2,319.2,200 条 反序列化+解压+解密 合计
+decrypt_single_avg,5.089,5.089,99.2,319.2,反序列化+解压+解密 mean
+decrypt_single_p95,5.456,5.456,99.2,319.2,p95
+deserialize_single_avg,0.002,0.002,99.2,319.2,bincode 反序列化 mean

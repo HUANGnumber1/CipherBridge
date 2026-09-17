@@ -1,0 +1,12 @@
+/node_modules
+/build
+/dist
+/public/*
+!/public/logo.svg
+# Local Netlify folder
+.netlify
+# Playwright CLI output (may contain credentials)
+.playwright-cli/
+# Local tooling artifacts
+.claude/
+.playwright/

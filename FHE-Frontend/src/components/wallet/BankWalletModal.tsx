@@ -45,17 +45,48 @@ export const BankWalletModal: React.FC = () => {
     };
   }, []);
 
-  const generateWallet = () => {
-    const newWallet = ethers.Wallet.createRandom();
-    const walletInfo = {
-      address: newWallet.address,
-      privateKey: newWallet.privateKey,
-    };
-    setWallet(walletInfo);
-    localStorage.setItem('bank_wallet', JSON.stringify(walletInfo));
-    window.dispatchEvent(new Event('bankWalletChanged'));
-    messageApi.success('New bank wallet generated successfully!');
+  const generateWallet = async () => {
+
+  const newWallet = ethers.Wallet.createRandom();
+
+  // 连接本地 Hardhat
+  const provider = new ethers.providers.JsonRpcProvider(
+    "http://127.0.0.1:8545"
+  );
+
+const faucetWallet = provider.getSigner(
+  "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
+);
+
+  // 自动转10 ETH
+  const tx = await faucetWallet.sendTransaction({
+    to: newWallet.address,
+    value: ethers.utils.parseEther("10")
+  });
+
+  await tx.wait();
+
+  const walletInfo = {
+    address: newWallet.address,
+    privateKey: newWallet.privateKey,
   };
+
+  setWallet(walletInfo);
+
+  localStorage.setItem(
+    "bank_wallet",
+    JSON.stringify(walletInfo)
+  );
+
+  window.dispatchEvent(
+    new Event("bankWalletChanged")
+  );
+
+  messageApi.success(
+    "New bank wallet generated successfully!"
+  );
+};
+
 
   const handleImportPrivateKey = () => {
     try {

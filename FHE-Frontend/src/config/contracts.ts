@@ -6,12 +6,16 @@ import { TaskManagementABI } from '../abis/TaskManagementContract';
 
 
 export const contractAddresses = {
-  AccessControl: '0x9d4e764dfa453238BeCCe857973682bc810DE7ff',
-  BankRegistry: '0xD4ae737D77C4f8A507e3fF04dAf43ab74fad5E80',
-  DataStorage: '0x0CD1358A923533263E3a6F0822508aB419a7ef6C',
-  TaskManagement: '0xAcCC396A91A82d179a430225A2AFA32b5F355b0D',
-  UserRegistry: '0x2F07acb5F4812E6Ea3170278eD9F3F96c3E7a70F'
-};
+  AccessControl: "0x0DCd1Bf9A1b36cE34237eEaFef220932846BCD82",
+
+  UserRegistry: "0x9A676e781A523b5d0C0e43731313A708CB607508",
+
+  BankRegistry: "0x0B306BF915C4d645ff596e518fAf3F9669b97016",
+
+  DataStorage: "0x959922bE3CAee4b8Cd9a407cc3ac1C251C2007B1",
+
+  TaskManagement: "0x9A9f2CCfdE556A7E9Ff0848998Aa4a0CFD8863AE"
+}
 
 export const contractConfig = {
   AccessControl: {

@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-tfhe = { version = "0.8.7", features = ["boolean", "shortint", "integer", "x86_64-unix"] }
+tfhe = { version = "0.8.7", features = ["boolean", "shortint", "integer", "x86_64-unix" ] }
 tokio = { version = "1.28", features = ["full"] }
 axum = "0.6"
 serde = { version = "1.0", features = ["derive"] }

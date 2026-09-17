@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>design_doc</title>
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+</head>
+<body>
+<h1 id="设计更改文档-design-change-log">设计更改文档 / Design Change
+Log</h1>
+<blockquote>
+<p>分支：<code>experiment</code> 项目：CipherBridge (FHE-Frontend)
+目标：在不改变功能的前提下，重塑视觉风格，与原系统（靛蓝 +
+顶栏）形成明显区分。 新设计方向：<strong>「Emerald
+Fresh」翡翠清新风</strong> —— 翡翠绿主色 + 左侧栏布局 + 更大圆角 +
+绿色光晕阴影。 构建验证：<code>npx vite build</code> 通过（3606
+modules，无错误）。</p>
+</blockquote>
+<hr />
+<h2 id="主色调变更color-primary">1. 主色调变更（Color · Primary）</h2>
+<p><strong>文件：</strong> <code>src/index.css</code> →
+<code>:root</code> 变量 <strong>文件：</strong> <code>src/App.tsx</code>
+→ antd <code>theme.token.colorPrimary</code></p>
+<table>
+<thead>
+<tr>
+<th>Token</th>
+<th>原值（靛蓝 Indigo）</th>
+<th>新值（翡翠绿 Emerald）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--primary-color</code></td>
+<td><code>#6366F1</code></td>
+<td><code>#10B981</code></td>
+</tr>
+<tr>
+<td><code>--primary-light</code></td>
+<td><code>#818CF8</code></td>
+<td><code>#34D399</code></td>
+</tr>
+<tr>
+<td><code>--primary-dark</code></td>
+<td><code>#4F46E5</code></td>
+<td><code>#059669</code></td>
+</tr>
+<tr>
+<td>antd <code>colorPrimary</code></td>
+<td><code>#1890FF</code>（蓝）</td>
+<td><code>#10B981</code>（绿）</td>
+</tr>
+</tbody>
+</table>
+<p>说明：从「冷调靛蓝」切换为「自然翡翠绿」，并在 antd 主题中同步
+<code>colorPrimary</code>，消除原系统中靛蓝/蓝/蓝-600
+三套主色并存的冲突，统一为单一绿色主色。</p>
+<hr />
+<h2 id="中性色-背景-文字变更color-neutrals">2. 中性色 / 背景 /
+文字变更（Color · Neutrals）</h2>
+<p><strong>文件：</strong> <code>src/index.css</code> →
+<code>:root</code></p>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr>
+<th>Token</th>
+<th>原值</th>
+<th>新值</th>
+<th>意图</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--bg-color</code></td>
+<td><code>#F8FAFC</code>（冷灰白）</td>
+<td><code>#ECFDF5</code>（薄荷白绿）</td>
+<td>整体背景带绿调</td>
+</tr>
+<tr>
+<td><code>--card-bg</code></td>
+<td><code>#FFFFFF</code></td>
+<td><code>#FFFFFF</code>（不变）</td>
+<td>卡片保持纯白以突出</td>
+</tr>
+<tr>
+<td><code>--text-primary</code></td>
+<td><code>#1E293B</code>（深蓝灰）</td>
+<td><code>#064E3B</code>（深松绿）</td>
+<td>文字带绿调</td>
+</tr>
+<tr>
+<td><code>--text-secondary</code></td>
+<td><code>#64748B</code></td>
+<td><code>#6B7280</code>（中性灰）</td>
+<td>次文字保持易读</td>
+</tr>
+<tr>
+<td><code>--border-color</code></td>
+<td><code>#E2E8F0</code>（冷灰）</td>
+<td><code>#D1FAE5</code>（浅绿）</td>
+<td>边框带绿调</td>
+</tr>
+</tbody>
+</table>
+<p>说明：背景、文字、边框整体转向「绿系冷调」，与原冷灰系统区分。</p>
+<hr />
+<h2 id="圆角变更border-radius-更圆润柔和">3. 圆角变更（Border Radius）——
+更圆润柔和</h2>
+<p><strong>文件：</strong> <code>src/index.css</code></p>
+<table>
+<thead>
+<tr>
+<th>元素</th>
+<th>原值</th>
+<th>新值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>卡片 <code>.ant-card</code></td>
+<td><code>16px</code></td>
+<td><code>20px</code></td>
+</tr>
+<tr>
+<td>弹窗 <code>.custom-modal</code></td>
+<td><code>16px</code></td>
+<td><code>20px</code></td>
+</tr>
+<tr>
+<td>表格 <code>.custom-table</code></td>
+<td><code>12px</code></td>
+<td><code>16px</code></td>
+</tr>
+<tr>
+<td>输入框 <code>.ant-input</code></td>
+<td><code>8px</code></td>
+<td><code>12px</code></td>
+</tr>
+<tr>
+<td>标签 <code>.ant-tag</code></td>
+<td><code>6px</code></td>
+<td><code>10px</code></td>
+</tr>
+<tr>
+<td>菜单项选中态</td>
+<td>（无）</td>
+<td><code>12px</code>（新增）</td>
+</tr>
+</tbody>
+</table>
+<p>说明：全面提升圆角，营造更柔和、现代的「气泡感」视觉，与原系统偏直角的克制风格形成对比。</p>
+<hr />
+<h2 id="阴影变更elevation-绿色光晕">4. 阴影变更（Elevation）——
+绿色光晕</h2>
+<p><strong>文件：</strong> <code>src/index.css</code></p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>元素</th>
+<th>原阴影</th>
+<th>新阴影</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Header</td>
+<td><code>0 2px 8px rgba(0,0,0,0.08)</code></td>
+<td><code>0 1px 3px rgba(0,0,0,0.06)</code>（更轻）</td>
+</tr>
+<tr>
+<td>卡片</td>
+<td><code>0 4px 6px -1px rgba(0,0,0,.1), 0 2px 4px -1px rgba(0,0,0,.06)</code></td>
+<td><code>0 10px 30px -12px rgba(16,185,129,0.25)</code>（绿色光晕）</td>
+</tr>
+<tr>
+<td>卡片 hover</td>
+<td><code>0 10px 15px -3px ..., translateY(-2px)</code></td>
+<td><code>0 20px 40px -12px rgba(16,185,129,0.35), translateY(-4px)</code>（更强悬浮）</td>
+</tr>
+<tr>
+<td>主按钮</td>
+<td><code>0 2px 4px rgba(99,102,241,0.2)</code></td>
+<td><code>0 6px 16px -4px rgba(16,185,129,0.4)</code></td>
+</tr>
+<tr>
+<td>主按钮 hover</td>
+<td><code>0 4px 6px rgba(99,102,241,0.25)</code></td>
+<td><code>0 10px 22px -4px rgba(16,185,129,0.5), translateY(-2px)</code></td>
+</tr>
+<tr>
+<td>弹窗</td>
+<td><code>0 20px 25px -5px ..., 0 10px 10px -5px ...</code></td>
+<td><code>0 24px 48px -12px rgba(0,0,0,0.18)</code></td>
+</tr>
+<tr>
+<td>侧边栏（新增）</td>
+<td>—</td>
+<td><code>2px 0 12px rgba(16,185,129,0.06)</code></td>
+</tr>
+</tbody>
+</table>
+<p>说明：阴影由「中性黑灰」改为「带主色的绿色光晕」，强化品牌色渗透；卡片悬浮位移由
+-2px 加大到 -4px，交互反馈更明显。</p>
+<hr />
+<h2 id="布局变更layout-顶栏-左侧栏">5. 布局变更（Layout）—— 顶栏 →
+左侧栏</h2>
+<p><strong>文件：</strong>
+<code>src/components/Layout.tsx</code>（重构） <strong>文件：</strong>
+<code>src/index.css</code>（新增
+<code>.ant-layout-sider</code>、<code>.app-logo</code>、<code>.ant-layout-header</code>
+调整）</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>维度</th>
+<th>原设计</th>
+<th>新设计</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>导航结构</td>
+<td>顶部 <code>Header</code> 横向 <code>Menu</code>（horizontal）</td>
+<td>左侧 <code>Sider</code> 纵向 <code>Menu</code>（inline），宽
+<code>240px</code></td>
+</tr>
+<tr>
+<td>Header</td>
+<td>含 Logo + 菜单 + 钱包按钮</td>
+<td>仅右侧钱包按钮（Logo 移到侧栏顶部）</td>
+</tr>
+<tr>
+<td>侧栏</td>
+<td>无</td>
+<td>白色背景 + 右侧绿调阴影 + sticky 满高</td>
+</tr>
+<tr>
+<td>菜单交互</td>
+<td>hover <code>text-blue-600</code>（Tailwind）</td>
+<td>选中态 <code>rgba(16,185,129,0.12)</code> 背景 + <code>12px</code>
+圆角 + 深绿字；hover 变深绿</td>
+</tr>
+<tr>
+<td>内容区</td>
+<td><code>.page-container</code> <code>max-width:1200px</code></td>
+<td>去除最大宽度限制，<code>padding:32px</code>，随侧栏自适应</td>
+</tr>
+<tr>
+<td>Logo</td>
+<td>高度 <code>40px</code>，置于顶栏</td>
+<td>高度
+<code>44px</code>，居中于侧栏顶部（<code>margin:20px auto</code>）</td>
+</tr>
+</tbody>
+</table>
+<p>说明：将原「顶部横向导航」彻底改为「左侧固定纵向导航」，这是与原系统最显著的视觉/结构差异；同时菜单点击通过
+<code>useNavigate</code> 路由跳转（原为 <code>&lt;Link&gt;</code>
+包裹）。</p>
+<hr />
+<h2 id="字体排版微调typography">6. 字体排版微调（Typography）</h2>
+<p><strong>文件：</strong> <code>src/index.css</code>、antd token</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>元素</th>
+<th>原值</th>
+<th>新值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>.section-title</code></td>
+<td><code>24px / 600</code></td>
+<td><code>26px / 700</code> + <code>letter-spacing:-0.3px</code></td>
+</tr>
+<tr>
+<td>标题 <code>h1-h5</code> 字重</td>
+<td><code>600</code></td>
+<td><code>700</code></td>
+</tr>
+<tr>
+<td>侧栏菜单字号</td>
+<td><code>16px / 500</code>（横向）</td>
+<td><code>15px / 500</code>（纵向）</td>
+</tr>
+<tr>
+<td>antd <code>colorText</code></td>
+<td>（默认）</td>
+<td><code>#064E3B</code></td>
+</tr>
+<tr>
+<td>antd <code>colorBorder</code></td>
+<td>（默认）</td>
+<td><code>#D1FAE5</code></td>
+</tr>
+<tr>
+<td>antd <code>borderRadius</code></td>
+<td>（默认 6）</td>
+<td><code>10</code></td>
+</tr>
+</tbody>
+</table>
+<p>说明：标题字重加粗到 700，字号略增；antd
+文字/边框色同步为绿系，使组件框架与自定义样式一致。</p>
+<hr />
+<h2 id="其他细节">7. 其他细节</h2>
+<ul>
+<li><strong>表格 hover
+行底色</strong>：<code>rgba(99,102,241,0.05)</code> →
+<code>rgba(16,185,129,0.06)</code></li>
+<li><strong>输入框 focus
+光环</strong>：<code>0 0 0 2px rgba(99,102,241,0.2)</code> →
+<code>0 0 0 3px rgba(16,185,129,0.18)</code></li>
+<li><strong>Badge / Tag</strong>：阴影与 padding
+改为绿系（<code>10px</code> 圆角、padding <code>4px 10px</code>）</li>
+<li><strong>菜单选中/悬浮</strong>：新增
+<code>.ant-menu-item-selected</code> 与
+<code>.ant-menu-item:hover</code> 样式（绿色背景圆角）</li>
+</ul>
+<hr />
+<h2 id="色彩体系改用-material-3-m3-规范仅改色调">8. 色彩体系改用
+Material 3 (M3) 规范（仅改色调）</h2>
+<p><strong>范围：</strong> 仅替换颜色（色调 /
+Color），布局、圆角、阴影结构、排版保持不变（相对 §1–§7
+的「翡翠绿」版本）。 <strong>来源：</strong> <a
+href="https://m3.material.io/styles/color/roles">Material 3 官方
+Baseline 色板</a>（material-web <code>md-sys-color</code> 基准值）。
+<strong>改动文件：</strong>
+<code>src/index.css</code>（<code>:root</code> 变量 +
+所有透明光晕色）、<code>src/App.tsx</code>（<code>colorPrimary</code> 等
+antd token）。</p>
+<h3 id="m3-角色-项目-css-变量映射">8.1 M3 角色 → 项目 CSS 变量映射</h3>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr>
+<th>M3 角色 (role)</th>
+<th>M3 取值 (Baseline)</th>
+<th>映射到的变量</th>
+<th>原「翡翠绿」值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>primary</code> (tone 40)</td>
+<td><code>#6750A4</code></td>
+<td><code>--primary-color</code></td>
+<td><code>#10B981</code></td>
+</tr>
+<tr>
+<td><code>primary-container</code> (tone 90)</td>
+<td><code>#EADDFF</code></td>
+<td><code>--primary-light</code></td>
+<td><code>#34D399</code></td>
+</tr>
+<tr>
+<td><code>on-primary-container</code> (tone 10)</td>
+<td><code>#21005D</code></td>
+<td><code>--primary-dark</code></td>
+<td><code>#059669</code></td>
+</tr>
+<tr>
+<td><code>background</code> (tone 98)</td>
+<td><code>#FFFBFE</code></td>
+<td><code>--bg-color</code></td>
+<td><code>#ECFDF5</code></td>
+</tr>
+<tr>
+<td><code>surface</code></td>
+<td><code>#FFFFFF</code></td>
+<td><code>--card-bg</code></td>
+<td><code>#FFFFFF</code></td>
+</tr>
+<tr>
+<td><code>on-surface</code> (tone 10)</td>
+<td><code>#1C1B1F</code></td>
+<td><code>--text-primary</code></td>
+<td><code>#064E3B</code></td>
+</tr>
+<tr>
+<td><code>on-surface-variant</code> (tone 30)</td>
+<td><code>#49454F</code></td>
+<td><code>--text-secondary</code></td>
+<td><code>#6B7280</code></td>
+</tr>
+<tr>
+<td><code>outline-variant</code> (tone 80)</td>
+<td><code>#CAC4D0</code></td>
+<td><code>--border-color</code></td>
+<td><code>#D1FAE5</code></td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>另新增辅助变量 <code>--m3-primary-rgb: 103, 80, 164</code>，供所有
+<code>rgba()</code>
+透明光晕（卡片/按钮/输入框/Badge/侧栏/菜单选中态/表格
+hover）复用，避免散落硬编码。</p>
+</blockquote>
+<h3 id="antd-主题-token-同步srcapp.tsx">8.2 antd 主题 Token
+同步（<code>src/App.tsx</code>）</h3>
+<table>
+<thead>
+<tr>
+<th>Token</th>
+<th>原「翡翠绿」值</th>
+<th>新 M3 值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>colorPrimary</code></td>
+<td><code>#10B981</code></td>
+<td><code>#6750A4</code></td>
+</tr>
+<tr>
+<td><code>colorText</code></td>
+<td><code>#064E3B</code></td>
+<td><code>#1C1B1F</code></td>
+</tr>
+<tr>
+<td><code>colorBorder</code></td>
+<td><code>#D1FAE5</code></td>
+<td><code>#CAC4D0</code></td>
+</tr>
+<tr>
+<td><code>borderRadius</code></td>
+<td><code>10</code></td>
+<td><code>10</code>（不变）</td>
+</tr>
+</tbody>
+</table>
+<h3 id="透明光晕色重着色retint">8.3 透明光晕色重着色（retint）</h3>
+<p>所有原本使用翡翠绿 <code>rgba(16,185,129,…)</code> 的位置，统一改为
+M3 主色 <code>rgba(103,80,164,…)</code>：</p>
+<table>
+<thead>
+<tr>
+<th>位置</th>
+<th>透明度/作用</th>
+<th>变化</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>侧栏阴影</td>
+<td><code>0.06→0.08</code></td>
+<td>绿 → 紫</td>
+</tr>
+<tr>
+<td>卡片阴影</td>
+<td><code>0.25</code> / hover <code>0.35</code></td>
+<td>绿 → 紫</td>
+</tr>
+<tr>
+<td>主按钮阴影</td>
+<td><code>0.4</code> / hover <code>0.5</code></td>
+<td>绿 → 紫</td>
+</tr>
+<tr>
+<td>输入框 focus 光环</td>
+<td><code>0.18</code></td>
+<td>绿 → 紫</td>
+</tr>
+<tr>
+<td>Badge 阴影</td>
+<td><code>0.4</code></td>
+<td>绿 → 紫</td>
+</tr>
+<tr>
+<td>菜单选中 / hover 背景</td>
+<td><code>0.12</code></td>
+<td>绿 → 紫</td>
+</tr>
+<tr>
+<td>表格行 hover 底色</td>
+<td><code>0.06→0.08</code></td>
+<td>绿 → 紫</td>
+</tr>
+<tr>
+<td>表格表头背景</td>
+<td><code>#F0FDF4</code> → <code>#E7E0EC</code></td>
+<td>绿底 → M3 <code>surface-variant</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="设计要点">8.4 设计要点</h3>
+<ul>
+<li>采用 M3 <strong>Baseline</strong> 参考色板（紫调），是 Material 3
+官网的规范基准；如需其他品牌色，可用 <a
+href="https://material-foundation.github.io/material-theme-builder/">Material
+Theme Builder</a> 以任意种子色生成同样结构的 M3
+角色集合后替换上述取值。</li>
+<li>角色命名遵循
+M3：<code>primary / primary-container / on-primary-container / background / surface / on-surface / on-surface-variant / outline-variant</code>，保证与
+Material 生态一致。</li>
+<li>仅改色调，未触碰 §5 的布局（侧栏）、§3 的圆角、§4
+的阴影偏移量，因此视觉结构仍与「翡翠绿」版本一致，仅配色由绿转紫。</li>
+</ul>
+<hr />
+<h2 id="视觉差异小结before-after">视觉差异小结（Before → After）</h2>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>Before（原系统）</th>
+<th>After（experiment 分支 · M3 版）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>主色</td>
+<td>靛蓝 <code>#6366F1</code> + 蓝 <code>#1890FF</code> 混合</td>
+<td>M3 紫 <code>#6750A4</code> 统一</td>
+</tr>
+<tr>
+<td>背景</td>
+<td>冷灰白 <code>#F8FAFC</code></td>
+<td>M3 <code>#FFFBFE</code></td>
+</tr>
+<tr>
+<td>导航</td>
+<td>顶部横向栏</td>
+<td>左侧固定纵向栏</td>
+</tr>
+<tr>
+<td>圆角</td>
+<td>6–16px（偏直角）</td>
+<td>10–20px（柔和圆润）</td>
+</tr>
+<tr>
+<td>阴影</td>
+<td>中性黑灰</td>
+<td>M3 主色紫色光晕</td>
+</tr>
+<tr>
+<td>标题字重</td>
+<td>600</td>
+<td>700</td>
+</tr>
+<tr>
+<td>色板规范</td>
+<td>自定义</td>
+<td>Material 3 Baseline 角色体系</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>备注：原仓库缺少
+<code>tsconfig.json</code>，<code>npm run build</code> 中的
+<code>tsc</code> 步骤会失败；本次验证使用 <code>npx vite build</code>
+直接构建通过。建议后续补回 <code>tsconfig.json</code>。 文件名已从
+<code>desgin_doc.md</code> 修正为 <code>design_doc.md</code>。</p>
+</blockquote>
+</body>
+</html>

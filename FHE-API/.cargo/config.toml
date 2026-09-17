@@ -1,7 +1,7 @@
 [build]
-jobs = 4  # 本机 15GiB RAM，降到 4 避免 TFHE 编译 OOM（原值 8）
+jobs = 8  # 设置为你 CPU 的核心数
 incremental = true
-#rustc-wrapper = "sccache"  # 如果你安装了 sccache
+rustc-wrapper = "sccache"  # 如果你安装了 sccache
 
 [target.x86_64-pc-windows-msvc]  # Windows 平台
 rustflags = [

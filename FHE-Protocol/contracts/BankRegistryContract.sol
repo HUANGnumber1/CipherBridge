@@ -24,12 +24,20 @@ contract BankRegistryContract {
 
     function registerBank(bytes memory publicKey) public {
         require(!banks[msg.sender].isActive, "Bank already registered");
-
         uint256 bankId = nextBankId++;
-        banks[msg.sender] = Bank(publicKey, bankId, true);
 
-        accessControl.addBank(msg.sender);
-        emit BankRegistered(msg.sender, bankId);
+         banks[msg.sender] = Bank(
+          publicKey,
+          bankId,
+          true
+    );
+
+     accessControl.addBank(msg.sender);
+
+     emit BankRegistered(
+        msg.sender,
+        bankId
+    );
     }
 
     function deactivateBank(address bankAddress) public {

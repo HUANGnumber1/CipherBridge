@@ -29,3 +29,8 @@ Thumbs.db
 # 临时文件
 *.tmp
 *.swp
+# Generated/local files
+.pnpm-store/
+**/node_modules/
+**/target/
+**/dist/
